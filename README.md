@@ -3,7 +3,7 @@ A Unity3d project for recording and playing back animations using Steam VR & Uni
 
 It records the motions of the Headset and Left/Right Controllers
 
-<p align="center"><img src="https://github.com/aarmo/UnityVR_RecordAnimations/blob/master/Assets/RecordAnimation/Docs/Test%20Scene.jpg" width="55%" alt="Running in VR"></img></p>
+<p align="center"><img src="https://github.com/aarmo/UnityVR_RecordAnimations/blob/master/Assets/RecordAnimation/Docs/Test%20Scene.jpg" width="55%" title="Running in VR"></img></p>
 
 ## Getting Started
 - Run the "Test" scene
@@ -20,4 +20,4 @@ Current version: 1.2.1 (Feb 25 2017)
 ```
 Assets/SteamVR
 ```
-<img src="https://github.com/aarmo/UnityVR_RecordAnimations/blob/master/Assets/RecordAnimation/Docs/Unity.jpg" alt="Unity Editor"></img>
+<img src="https://github.com/aarmo/UnityVR_RecordAnimations/blob/master/Assets/RecordAnimation/Docs/Unity.jpg" title="Unity Editor"></img>
