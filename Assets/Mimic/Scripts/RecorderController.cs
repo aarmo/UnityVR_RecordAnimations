@@ -2,17 +2,18 @@
 
 public class RecorderController : MonoBehaviour
 {
-    public UnityAnimationRecorder[] recordables;
+    public AnimationRecorder[] recordables;
     public Animation[] targets;
-    
+    public string[] recordingNames = new[] { "activate", "idle1", "idle2", "idle3", "idle4", "attack1", "block1", "attack2", "block2", "attack3", "block3", "attack4", "block4" };
+
     public bool recordLimitedFrames = false;
     public int recordFrames = 1000;
-
+    
     public SteamVR_TrackedController controller;
     public ControllerButton holdToRecord = ControllerButton.Grip;
 
+    int _recordingIndex = 0;
     bool _recording = false;
-    string _logMessage = "";
 
     private void Start()
     {
@@ -26,7 +27,7 @@ public class RecorderController : MonoBehaviour
     {
         if (controller == null) return;
 
-        var buttonPressed = false;        
+        var buttonPressed = false;
         switch (holdToRecord)
         {
             case ControllerButton.Scripted:
@@ -44,7 +45,7 @@ public class RecorderController : MonoBehaviour
                 buttonPressed = controller.padPressed;
                 break;
         }
-        
+
         if (buttonPressed && !_recording)
         {
             StartRecording();
@@ -55,19 +56,23 @@ public class RecorderController : MonoBehaviour
         }
     }
 
-    public void StartRecording()
+    public bool StartRecording()
     {
-        Debug.Log("Starting recording...");
+        if (_recordingIndex >= recordingNames.Length) return false;
+
         foreach (var r in recordables)
         {
             r.StartRecording(recordLimitedFrames ? recordFrames : -1);
         }
         _recording = true;
+        Debug.Log("Start recording: " + recordingNames[_recordingIndex]);
+        return true;
     }
 
-    public void StopRecording()
+    public bool StopRecording()
     {
-        Debug.Log("Ending recording...");
+        if (!_recording) return false;
+
         for (var i = 0; i < recordables.Length; i++)
         {
             var r = recordables[i];
@@ -80,40 +85,14 @@ public class RecorderController : MonoBehaviour
                 var anim = t.GetComponent<Animation>();
                 if (anim != null && clip != null)
                 {
-                    clip.legacy = true;
-                    anim.AddClip(clip, "recordedClip");
-                    anim.wrapMode = WrapMode.PingPong;
-                    anim.Play("recordedClip");
+                    anim.AddClip(clip, recordingNames[_recordingIndex]);                    
+                    anim.Play(recordingNames[_recordingIndex]);
                 }
             }
         }
+        Debug.Log("Recording stopped: " + recordingNames[_recordingIndex]);
+        _recordingIndex++;
         _recording = false;
-    }
-
-    public enum ControllerButton
-    {
-        None,
-        Scripted,
-        Grip,
-        Trigger,
-        Pad
-    }
-
-    public static string GetTransformPathName(Transform rootTransform, Transform targetTransform)
-    {
-        string returnName = targetTransform.name;
-        Transform tempObj = targetTransform;
-
-        // it is the root transform
-        if (tempObj == rootTransform)
-            return "";
-
-        while (tempObj.parent != rootTransform)
-        {
-            returnName = tempObj.parent.name + "/" + returnName;
-            tempObj = tempObj.parent;
-        }
-
-        return returnName;
+        return true;
     }
 }

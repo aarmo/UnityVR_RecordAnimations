@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
-public class UnityAnimationRecorder : MonoBehaviour {
-
+public class AnimationRecorder : MonoBehaviour
+{
     public string clipName;
     public AnimationClip lastClip;
     public bool recordChildren = false;
 
     Transform[] _recordObjs;
-    UnityObjectPosRotAnimation[] _objRecorders;
+    ObjectAnimation[] _objRecorders;
     int _maxFrames = 0;
     int _currentFrame = 0;
     float _nowTime = 0.0f;
@@ -18,20 +18,20 @@ public class UnityAnimationRecorder : MonoBehaviour {
     {
         _recordObjs = (recordChildren ? gameObject.GetComponentsInChildren<Transform>() : new[] { transform });
 
-        _objRecorders = new UnityObjectPosRotAnimation[_recordObjs.Length];
-        
+        _objRecorders = new ObjectAnimation[_recordObjs.Length];
+
         for (var i = 0; i < _recordObjs.Length; i++)
         {
-            var path = RecorderController.GetTransformPathName(transform, _recordObjs[i]);
-            _objRecorders[i] = new UnityObjectPosRotAnimation(path, transform);
-		}
-	}
-	
-	void Update()
-    { 
-		if (_recording)
+            var path = GetTransformPathName(transform, _recordObjs[i]);
+            _objRecorders[i] = new ObjectAnimation(path, transform);
+        }
+    }
+
+    void Update()
+    {
+        if (_recording)
         {
-			_nowTime += Time.deltaTime;
+            _nowTime += Time.deltaTime;
 
             if (_recordLimitedFrames)
             {
@@ -47,9 +47,9 @@ public class UnityAnimationRecorder : MonoBehaviour {
             for (var i = 0; i < _objRecorders.Length; i++)
             {
                 _objRecorders[i].AddFrame(_nowTime);
-            }                
-		}
-	}
+            }
+        }
+    }
 
     public void StartRecording(int maxFrames)
     {
@@ -61,10 +61,10 @@ public class UnityAnimationRecorder : MonoBehaviour {
         _maxFrames = maxFrames;
     }
 
-	public void StopRecording()
+    public void StopRecording()
     {
         _recording = false;
-		BuildAnimationClip();
+        BuildAnimationClip();
         SetupRecorders();
     }
 
@@ -72,19 +72,38 @@ public class UnityAnimationRecorder : MonoBehaviour {
     {
         lastClip = new AnimationClip()
         {
-            name = clipName
+            name = clipName,
+            legacy = true
         };
 
         for (var i = 0; i < _objRecorders.Length; i++)
         {
-			var curves = _objRecorders[i].curves;
+            var curves = _objRecorders[i].curves;
 
-			for (var x = 0; x < curves.Length; x++)
+            for (var x = 0; x < curves.Length; x++)
             {
                 lastClip.SetCurve(_objRecorders[i].pathName, typeof(Transform), curves[x].propertyName, curves[x].animCurve);
-			}
-		}
+            }
+        }
 
         lastClip.EnsureQuaternionContinuity();
+    }
+
+    public static string GetTransformPathName(Transform rootTransform, Transform targetTransform)
+    {
+        string returnName = targetTransform.name;
+        Transform tempObj = targetTransform;
+
+        // it is the root transform
+        if (tempObj == rootTransform)
+            return "";
+
+        while (tempObj.parent != rootTransform)
+        {
+            returnName = tempObj.parent.name + "/" + returnName;
+            tempObj = tempObj.parent;
+        }
+
+        return returnName;
     }
 }

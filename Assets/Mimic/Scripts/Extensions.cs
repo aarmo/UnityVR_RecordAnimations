@@ -1,10 +1,9 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEngine;
 
 public static class Extensions
 {
-    public static void Serialize(this AnimationClip obj, string path)
+    public static void Serialize<T>(this T obj, string path)
     {
         using (var fs = new FileStream(path, FileMode.Create))
         {
@@ -20,14 +19,14 @@ public static class Extensions
         }
     }
 
-    public static AnimationClip Deserialize(string path)
+    public static T Deserialize<T>(string path)
     {
         using (var fs = new FileStream(path, FileMode.Open))
         {
             try
             {
                 var formatter = new BinaryFormatter();
-                return (AnimationClip)formatter.Deserialize(fs);
+                return (T)formatter.Deserialize(fs);
             }
             finally
             {
@@ -35,4 +34,13 @@ public static class Extensions
             }
         }
     }
+}
+
+public enum ControllerButton
+{
+    None,
+    Scripted,
+    Grip,
+    Trigger,
+    Pad
 }
